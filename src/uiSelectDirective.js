@@ -46,6 +46,7 @@ uis.directive('uiSelect',
 
         $select.onSelectCallback = $parse(attrs.onSelect);
         $select.onRemoveCallback = $parse(attrs.onRemove);
+        $select.isNewTagDuplication = $parse(attrs.isNewTagDuplication);
 
         //Limit the number of selections allowed
         $select.limit = (angular.isDefined(attrs.limit)) ? parseInt(attrs.limit, 10) : undefined;
@@ -253,6 +254,8 @@ uis.directive('uiSelect',
           element[0].style.left = '';
           element[0].style.top = '';
           element[0].style.width = originalWidth;
+
+          $select.setFocus();
         }
 
         // Hold on to a reference to the .ui-select-dropdown element for direction support.
@@ -300,7 +303,7 @@ uis.directive('uiSelect',
             }
 
             // Hide the dropdown so there is no flicker until $timeout is done executing.
-            dropdown[0].style.opacity = 0;
+            //dropdown[0].style.opacity = 0;
 
             // Delay positioning the dropdown until all choices have been added so its height is correct.
             $timeout(function(){

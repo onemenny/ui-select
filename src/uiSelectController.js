@@ -220,12 +220,17 @@ uis.controller('uiSelectCtrl',
       // Debounce
       // See https://github.com/angular-ui/bootstrap/blob/0.10.0/src/typeahead/typeahead.js#L155
       // FYI AngularStrap typeahead does not have debouncing: https://github.com/mgcrea/angular-strap/blob/v2.0.0-rc.4/src/typeahead/typeahead.js#L177
-      if (_refreshDelayPromise) {
-        $timeout.cancel(_refreshDelayPromise);
+      if (ctrl.refreshDelay > 0) {
+        if (_refreshDelayPromise) {
+          $timeout.cancel(_refreshDelayPromise);
+        }
+        _refreshDelayPromise = $timeout(function () {
+          $scope.$eval(refreshAttr);
+        }, ctrl.refreshDelay);
       }
-      _refreshDelayPromise = $timeout(function() {
+      else {
         $scope.$eval(refreshAttr);
-      }, ctrl.refreshDelay);
+      }
     }
   };
 
@@ -305,7 +310,12 @@ uis.controller('uiSelectCtrl',
             }
           }
           // search ctrl.selected for dupes potentially caused by tagging and return early if found
-          if ( ctrl.selected && angular.isArray(ctrl.selected) && ctrl.selected.filter( function (selection) { return angular.equals(selection, item); }).length > 0 ) {
+          if (ctrl.selected && angular.isArray(ctrl.selected) && ctrl.selected.filter(function (selection) {
+                return ctrl.isNewTagDuplication !== angular.noop ? ctrl.isNewTagDuplication($scope, {
+                  newItem: item,
+                  existingItem: angular.copy(selection)
+                }) : angular.equals(angular.copy(selection), item);
+              }).length > 0) {
             ctrl.close(skipFocusser);
             return;
           }
@@ -325,6 +335,9 @@ uis.controller('uiSelectCtrl',
 
         if (ctrl.closeOnSelect) {
           ctrl.close(skipFocusser);
+        }
+        else {
+          _resetSearchInput();
         }
         if ($event && $event.type === 'click') {
           ctrl.clickTriggeredSelect = true;
@@ -496,6 +509,7 @@ uis.controller('uiSelectCtrl',
     var data = e.originalEvent.clipboardData.getData('text/plain');
     if (data && data.length > 0 && ctrl.taggingTokens.isActivated && ctrl.tagging.fct) {
       var items = data.split(ctrl.taggingTokens.tokens[0]); // split by first token only
+      items = items.filter(Boolean);
       if (items && items.length > 0) {
         angular.forEach(items, function (item) {
           var newItem = ctrl.tagging.fct(item);
@@ -517,6 +531,9 @@ uis.controller('uiSelectCtrl',
 
   // See https://github.com/ivaynberg/select2/blob/3.4.6/select2.js#L1431
   function _ensureHighlightVisible() {
+    if (!ctrl.open) {
+      return;
+    }
     var container = $element.querySelectorAll('.ui-select-choices-content');
     var choices = container.querySelectorAll('.ui-select-choices-row');
     if (choices.length < 1) {
