@@ -1470,6 +1470,7 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
             newItem.isTag = true;
             // verify the the tag doesn't match the value of an existing item
             if ( stashArr.filter( function (origItem) { return angular.equals( origItem, $select.tagging.fct($select.search) ); } ).length > 0 ) {
+              $select.items = items;
               return;
             }
             newItem.isTag = true;
@@ -1528,6 +1529,9 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
             $select.activeIndex = 0;
             $select.items = items;
           });
+        }
+        else {
+          $select.items = $.grep($select.items, function(tag) {return !tag.hasOwnProperty('isTag')});
         }
       });
       function _findCaseInsensitiveDupe(arr) {
