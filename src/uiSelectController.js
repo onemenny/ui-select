@@ -305,7 +305,7 @@ uis.controller('uiSelectCtrl',
             }
           }
           // search ctrl.selected for dupes potentially caused by tagging and return early if found
-          if ( ctrl.selected && angular.isArray(ctrl.selected) && ctrl.selected.filter( function (selection) { return angular.equals(selection, item); }).length > 0 ) {
+          if ( ctrl.selected && angular.isArray(ctrl.selected) && ctrl.selected.filter( function (selection) {var a=angular.copy(selection); a.isTag=true; return angular.equals(a, item); }).length > 0 ) {
             ctrl.close(skipFocusser);
             return;
           }
@@ -499,6 +499,7 @@ uis.controller('uiSelectCtrl',
     var data = e.originalEvent.clipboardData.getData('text/plain');
     if (data && data.length > 0 && ctrl.taggingTokens.isActivated && ctrl.tagging.fct) {
       var items = data.split(ctrl.taggingTokens.tokens[0]); // split by first token only
+      items = items.filter(Boolean);
       if (items && items.length > 0) {
         angular.forEach(items, function (item) {
           var newItem = ctrl.tagging.fct(item);

@@ -2093,7 +2093,7 @@ describe('ui-select tests', function() {
       clickMatch(el);
       triggerPaste(el.find('input'), ',tag1,tag2,tag3,,tag5,');
 
-      expect($(el).scope().$select.selected.length).toBe(5);
+      expect($(el).scope().$select.selected.length).toBe(4);
     });
 
     it('should add an id to the search input field', function () {
