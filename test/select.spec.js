@@ -123,11 +123,13 @@ describe('ui-select tests', function() {
       if (attrs.theme !== undefined) { attrsHtml += ' theme="' + attrs.theme + '"'; }
       if (attrs.tabindex !== undefined) { attrsHtml += ' tabindex="' + attrs.tabindex + '"'; }
       if (attrs.tagging !== undefined) { attrsHtml += ' tagging="' + attrs.tagging + '"'; }
+      if (attrs.isNewTagDuplication !== undefined) { attrsHtml += ' is-new-tag-duplication="' + attrs.isNewTagDuplication + '"'; }
       if (attrs.taggingTokens !== undefined) { attrsHtml += ' tagging-tokens="' + attrs.taggingTokens + '"'; }
       if (attrs.title !== undefined) { attrsHtml += ' title="' + attrs.title + '"'; }
       if (attrs.appendToBody !== undefined) { attrsHtml += ' append-to-body="' + attrs.appendToBody + '"'; }
       if (attrs.allowClear !== undefined) { matchAttrsHtml += ' allow-clear="' + attrs.allowClear + '"';}
       if (attrs.inputId !== undefined) { attrsHtml += ' input-id="' + attrs.inputId + '"'; }
+      if (attrs.multiple !== undefined) { attrsHtml += ' multiple'; }
     }
 
     return compileTemplate(
@@ -516,6 +518,34 @@ describe('ui-select tests', function() {
     $(el).scope().$select.select('idontexist');
 
     expect($(el).scope().$select.selected).not.toBeDefined();
+  });
+
+  it('should invoke tagging duplication callback', function () {
+    scope.isNewTagDuplicationFunc = function (newItem, existingItem) {
+      return newItem.email.toLowerCase() === existingItem.email.toLowerCase();
+    };
+
+    scope.taggingFunc = function (name) {
+      return {
+        name: name,
+        email: name + '@email.com',
+        group: 'Foo',
+        age: 12
+      };
+    };
+
+    var el = createUiSelect({multiple: true, tagging: 'taggingFunc', isNewTagDuplication: 'isNewTagDuplicationFunc(newItem, existingItem)'});
+    clickMatch(el);
+
+    $(el).scope().$select.search = 'adam';
+    $(el).scope().$select.activeIndex = 0;
+    $(el).scope().$select.select('adam');
+
+    $(el).scope().$select.search = 'adAM';
+    $(el).scope().$select.activeIndex = 0;
+    $(el).scope().$select.select('adAM');
+
+    expect($(el).scope().$select.items.length).toEqual(1);
   });
 
   it('should allow tagging if the attribute says so', function() {

@@ -46,6 +46,7 @@ uis.directive('uiSelect',
 
         $select.onSelectCallback = $parse(attrs.onSelect);
         $select.onRemoveCallback = $parse(attrs.onRemove);
+        $select.isNewTagDuplication = $parse(attrs.isNewTagDuplication);
 
         //Limit the number of selections allowed
         $select.limit = (angular.isDefined(attrs.limit)) ? parseInt(attrs.limit, 10) : undefined;

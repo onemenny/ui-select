@@ -305,7 +305,12 @@ uis.controller('uiSelectCtrl',
             }
           }
           // search ctrl.selected for dupes potentially caused by tagging and return early if found
-          if ( ctrl.selected && angular.isArray(ctrl.selected) && ctrl.selected.filter( function (selection) {var a=angular.copy(selection); a.isTag=true; return angular.equals(a, item); }).length > 0 ) {
+          if (ctrl.selected && angular.isArray(ctrl.selected) && ctrl.selected.filter(function (selection) {
+                return ctrl.isNewTagDuplication !== angular.noop ? ctrl.isNewTagDuplication($scope, {
+                  newItem: item,
+                  existingItem: angular.copy(selection)
+                }) : angular.equals(angular.copy(selection), item);
+              }).length > 0) {
             ctrl.close(skipFocusser);
             return;
           }

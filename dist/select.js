@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.13.2 - 2015-12-29T09:54:02.664Z
+ * Version: 0.13.2 - 2015-12-29T14:04:45.708Z
  * License: MIT
  */
 
@@ -544,7 +544,12 @@ uis.controller('uiSelectCtrl',
             }
           }
           // search ctrl.selected for dupes potentially caused by tagging and return early if found
-          if ( ctrl.selected && angular.isArray(ctrl.selected) && ctrl.selected.filter( function (selection) {var a=angular.copy(selection); a.isTag=true; return angular.equals(a, item); }).length > 0 ) {
+          if (ctrl.selected && angular.isArray(ctrl.selected) && ctrl.selected.filter(function (selection) {
+                return ctrl.isNewTagDuplication !== angular.noop ? ctrl.isNewTagDuplication($scope, {
+                  newItem: item,
+                  existingItem: angular.copy(selection)
+                }) : angular.equals(angular.copy(selection), item);
+              }).length > 0) {
             ctrl.close(skipFocusser);
             return;
           }
@@ -838,6 +843,7 @@ uis.directive('uiSelect',
 
         $select.onSelectCallback = $parse(attrs.onSelect);
         $select.onRemoveCallback = $parse(attrs.onRemove);
+        $select.isNewTagDuplication = $parse(attrs.isNewTagDuplication);
 
         //Limit the number of selections allowed
         $select.limit = (angular.isDefined(attrs.limit)) ? parseInt(attrs.limit, 10) : undefined;
