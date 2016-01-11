@@ -2,5 +2,5 @@
 /node_modules
 /.idea
 /.tmp
-/.public
 .DS_Store
+public
