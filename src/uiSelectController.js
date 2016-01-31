@@ -220,12 +220,17 @@ uis.controller('uiSelectCtrl',
       // Debounce
       // See https://github.com/angular-ui/bootstrap/blob/0.10.0/src/typeahead/typeahead.js#L155
       // FYI AngularStrap typeahead does not have debouncing: https://github.com/mgcrea/angular-strap/blob/v2.0.0-rc.4/src/typeahead/typeahead.js#L177
-      if (_refreshDelayPromise) {
-        $timeout.cancel(_refreshDelayPromise);
+      if (ctrl.refreshDelay > 0) {
+        if (_refreshDelayPromise) {
+          $timeout.cancel(_refreshDelayPromise);
+        }
+        _refreshDelayPromise = $timeout(function () {
+          $scope.$eval(refreshAttr);
+        }, ctrl.refreshDelay);
       }
-      _refreshDelayPromise = $timeout(function() {
+      else {
         $scope.$eval(refreshAttr);
-      }, ctrl.refreshDelay);
+      }
     }
   };
 
