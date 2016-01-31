@@ -280,7 +280,6 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
             var dupeIndex = -1;
             var tagItems;
             var tagItem;
-            var filterExistingNewTagsFn;
 
             // case for object tagging via transform `$select.tagging.fct` function
             if ( $select.tagging.fct !== undefined) {
@@ -297,9 +296,8 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
               newItem = $select.tagging.fct($select.search);
               newItem.isTag = true;
               // verify the the tag doesn't match the value of an existing item
-              filterExistingNewTagsFn = function (origItem) { return angular.equals( origItem, $select.tagging.fct($select.search) ); };
-              if ( stashArr.filter( filterExistingNewTagsFn ).length > 0 ) {
-                $select.items = $select.items.filter( filterExistingNewTagsFn );
+              if ( stashArr.filter( function (origItem) { return angular.equals( origItem, $select.tagging.fct($select.search) ); } ).length > 0 ) {
+                $select.items = stashArr.filter( function (origItem) { return  !origItem.isTag; } );
                 return;
               }
               newItem.isTag = true;
