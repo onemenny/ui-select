@@ -5,8 +5,8 @@
  * put as much logic in the controller (instead of the link functions) as possible so it can be easily tested.
  */
 uis.controller('uiSelectCtrl',
-  ['$scope', '$element', '$timeout', '$filter', 'uisRepeatParser', 'uiSelectMinErr', 'uiSelectConfig', '$parse',
-  function($scope, $element, $timeout, $filter, RepeatParser, uiSelectMinErr, uiSelectConfig, $parse) {
+  ['$scope', '$element', '$timeout', '$filter', '$$uisDebounce', 'uisRepeatParser', 'uiSelectMinErr', 'uiSelectConfig', '$parse', '$window',
+  function($scope, $element, $timeout, $filter, $$uisDebounce, RepeatParser, uiSelectMinErr, uiSelectConfig, $parse, $window) {
 
   var ctrl = this;
 
@@ -558,8 +558,15 @@ uis.controller('uiSelectCtrl',
     }
   }
 
+  var onResize = $$uisDebounce(function() {
+    ctrl.sizeSearchInput();
+  }, 50);
+
+  angular.element($window).bind('resize', onResize);
+
   $scope.$on('$destroy', function() {
     ctrl.searchInput.off('keyup keydown tagged blur paste');
+    angular.element($window).off('resize', onResize);
   });
 
 }]);

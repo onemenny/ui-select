@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.13.2 - 2016-02-10T09:14:32.982Z
+ * Version: 0.13.2 - 2016-08-15T07:56:13.653Z
  * License: MIT
  */
 
@@ -244,8 +244,8 @@ uis.directive('uiSelectChoices',
  * put as much logic in the controller (instead of the link functions) as possible so it can be easily tested.
  */
 uis.controller('uiSelectCtrl',
-  ['$scope', '$element', '$timeout', '$filter', 'uisRepeatParser', 'uiSelectMinErr', 'uiSelectConfig', '$parse',
-  function($scope, $element, $timeout, $filter, RepeatParser, uiSelectMinErr, uiSelectConfig, $parse) {
+  ['$scope', '$element', '$timeout', '$filter', '$$uisDebounce', 'uisRepeatParser', 'uiSelectMinErr', 'uiSelectConfig', '$parse', '$window',
+  function($scope, $element, $timeout, $filter, $$uisDebounce, RepeatParser, uiSelectMinErr, uiSelectConfig, $parse, $window) {
 
   var ctrl = this;
 
@@ -797,8 +797,15 @@ uis.controller('uiSelectCtrl',
     }
   }
 
+  var onResize = $$uisDebounce(function() {
+    ctrl.sizeSearchInput();
+  }, 50);
+
+  angular.element($window).bind('resize', onResize);
+
   $scope.$on('$destroy', function() {
     ctrl.searchInput.off('keyup keydown tagged blur paste');
+    angular.element($window).off('resize', onResize);
   });
 
 }]);
@@ -1871,6 +1878,30 @@ uis.directive('uiSelectSort', ['$timeout', 'uiSelectConfig', 'uiSelectMinErr', f
   };
 }]);
 
+/**
+ * Debounces functions
+ *
+ * Taken from UI Bootstrap $$debounce source code
+ * See https://github.com/angular-ui/bootstrap/blob/master/src/debounce/debounce.js
+ *
+ */
+uis.factory('$$uisDebounce', ['$timeout', function($timeout) {
+    return function(callback, debounceTime) {
+        var timeoutPromise;
+
+        return function() {
+            var self = this;
+            var args = Array.prototype.slice.call(arguments);
+            if (timeoutPromise) {
+                $timeout.cancel(timeoutPromise);
+            }
+
+            timeoutPromise = $timeout(function() {
+                callback.apply(self, args);
+            }, debounceTime);
+        };
+    };
+}]);
 /**
  * Parses "repeat" attribute.
  *
